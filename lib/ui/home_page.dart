@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:giphylocalizator/ui/gif_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:share/share.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -51,7 +53,7 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.all(10.0),
             child: TextField(
               decoration: InputDecoration(
-                  labelText: 'Psequise seu gif aqui',
+                  labelText: 'Pesquise seu gif aqui',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18.0),
@@ -78,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                           alignment: Alignment.center,
                           child: CircularProgressIndicator(
                             valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                             strokeWidth: 5.0,
                           ),
                         );
@@ -111,35 +113,48 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           if (_search == null || index < snapshot.data["data"].length)
             return GestureDetector(
-              child: Image.network(
-                snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-                height: 300.0,
-                fit: BoxFit.cover,
+              child: FadeInImage.memoryNetwork(
+                  placeholder: kTransparentImage,
+                  image: snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+                  fit: BoxFit.cover,
+                  height: 300.0,
               ),
-              onTap: (){
-                Navigator.push(context, 
-                MaterialPageRoute(builder: (context) => GifPage(snapshot.data["data"][index])));
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            GifPage(snapshot.data["data"][index])));
+              },
+              onLongPress: () {
+                Share.share(snapshot.data["data"][index]["images"]
+                    ["fixed_height"]["url"]);
               },
             );
           else
             return Container(
               child: GestureDetector(
-                onTap: (){
+                onTap: () {
                   setState(() {
-                    _offset+=19;
+                    _offset += 19;
                   });
                 },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Icon(Icons.add, color: Colors.white, size: 70.0,),
-                    Text("Carregar mais...",
-                      style: TextStyle(color: Colors.white, fontSize: 22.0),),
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 70.0,
+                    ),
+                    Text(
+                      "Carregar mais...",
+                      style: TextStyle(color: Colors.white, fontSize: 22.0),
+                    ),
                   ],
                 ),
               ),
             );
-
         });
   }
 }
